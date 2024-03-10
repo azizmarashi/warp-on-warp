@@ -4,7 +4,6 @@ import au.com.bytecode.opencsv.CSVReader;
 import lombok.SneakyThrows;
 import org.json.JSONArray;
 import org.json.JSONObject;
-
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.InputStream;
@@ -23,7 +22,6 @@ public class MainApplication {
 
         System.out.println(setIpAndPortToJson(extractIpAndPort()));
 
-
     }
 
     @SneakyThrows
@@ -40,7 +38,6 @@ public class MainApplication {
         while ((reader3.readLine()) != null) {}
     }
 
-
     @SneakyThrows
     public static BestIpPort extractIpAndPort() {
         CSVReader csvReader = new CSVReader(new FileReader("result.csv"));
@@ -50,11 +47,6 @@ public class MainApplication {
         matcher.find();
         return new BestIpPort(matcher.group(1),Integer.valueOf(matcher.group(2)));
     }
-
-
-
-
-
 
     public static String setIpAndPortToJson(BestIpPort ipPort){
 
@@ -109,9 +101,7 @@ public class MainApplication {
         }
 
         String modifiedJsonString = json.toString();
-
         return modifiedJsonString;
-
     }
 
 }
