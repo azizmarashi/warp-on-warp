@@ -1,7 +1,9 @@
 package org.example;
 
+import au.com.bytecode.opencsv.CSVReader;
 import lombok.SneakyThrows;
 import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
@@ -29,6 +31,17 @@ public class MainApplication {
         while ((line3 = reader3.readLine()) != null) {
             System.out.println(line3);
         }
+
+        String csvFilePath = "result.csv";
+        CSVReader csvReader = new CSVReader(new FileReader(csvFilePath));
+        csvReader.readNext();
+        String[] secondLine = csvReader.readNext();
+        if (secondLine != null) {
+            for (String cell : secondLine) {
+                System.out.print(cell);
+            }
+        }
+        csvReader.close();
 
     }
 
