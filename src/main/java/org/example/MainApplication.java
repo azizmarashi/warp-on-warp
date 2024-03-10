@@ -2,10 +2,10 @@ package org.example;
 
 import au.com.bytecode.opencsv.CSVReader;
 import lombok.SneakyThrows;
-import java.io.BufferedReader;
 import java.io.FileReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.util.Arrays;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class MainApplication {
 
@@ -14,35 +14,22 @@ public class MainApplication {
 
         ProcessBuilder processBuilder = new ProcessBuilder("bash", "-c", "curl -fsSL https://raw.githubusercontent.com/Ptechgithub/warp/main/endip/install.sh | bash");
         Process process = processBuilder.start();
-
         process.getOutputStream().write("1\n".getBytes());
         process.getOutputStream().flush();
 
-        InputStream inputStream2 = process.getErrorStream();
-        BufferedReader reader2 = new BufferedReader(new InputStreamReader(inputStream2));
-        String line2;
-        while ((line2 = reader2.readLine()) != null) {
-            System.out.println(line2);
-        }
+        BestIpPort bestIpPort = extractBestIpAndPortFromCSVFile();
+        System.out.println(bestIpPort);
+    }
 
-        InputStream inputStream3 = process.getInputStream();
-        BufferedReader reader3 = new BufferedReader(new InputStreamReader(inputStream3));
-        String line3;
-        while ((line3 = reader3.readLine()) != null) {
-            System.out.println(line3);
-        }
-
+    @SneakyThrows
+    public static BestIpPort extractBestIpAndPortFromCSVFile() {
         String csvFilePath = "result.csv";
         CSVReader csvReader = new CSVReader(new FileReader(csvFilePath));
-        csvReader.readNext();
-        String[] secondLine = csvReader.readNext();
-        if (secondLine != null) {
-            for (String cell : secondLine) {
-                System.out.print(cell);
-            }
-        }
-        csvReader.close();
-
+        String bestIpAndPort = Arrays.toString(csvReader.readAll().get(1));
+        Pattern pattern = Pattern.compile("\\[(\\d+\\.\\d+\\.\\d+\\.\\d+):(\\d+),");
+        Matcher matcher = pattern.matcher(bestIpAndPort);
+        matcher.find();
+        return new BestIpPort(matcher.group(1),matcher.group(2));
     }
 
 }
