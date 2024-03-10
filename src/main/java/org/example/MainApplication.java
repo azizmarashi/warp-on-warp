@@ -2,13 +2,20 @@ package org.example;
 
 import au.com.bytecode.opencsv.CSVReader;
 import lombok.SneakyThrows;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+
+import java.io.*;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -17,25 +24,29 @@ public class MainApplication {
     @SneakyThrows
     public static void main(String[] args) {
 
-        extractAndCreateCSVFile();
-        System.out.println(extractIpAndPort());
+//        extractAndCreateCSVFile();
+//        System.out.println(setIpAndPortToJson(extractIpAndPort()));
 
-        System.out.println(setIpAndPortToJson(extractIpAndPort()));
+//        extractAndPrintOutput();
+
+        System.out.println(getJsonResponse());
 
     }
 
     @SneakyThrows
-    public static void extractAndCreateCSVFile(){
+    public static void extractAndCreateCSVFile() {
         ProcessBuilder processBuilder = new ProcessBuilder("bash", "-c", "curl -fsSL https://raw.githubusercontent.com/Ptechgithub/warp/main/endip/install.sh | bash");
         Process process = processBuilder.start();
         process.getOutputStream().write("1\n".getBytes());
         process.getOutputStream().flush();
-        InputStream inputStream2 = process.getErrorStream();
+        InputStream inputStream = process.getErrorStream();
+        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+        while ((reader.readLine()) != null) {
+        }
+        InputStream inputStream2 = process.getInputStream();
         BufferedReader reader2 = new BufferedReader(new InputStreamReader(inputStream2));
-        while ((reader2.readLine()) != null) {}
-        InputStream inputStream3 = process.getInputStream();
-        BufferedReader reader3 = new BufferedReader(new InputStreamReader(inputStream3));
-        while ((reader3.readLine()) != null) {}
+        while ((reader2.readLine()) != null) {
+        }
     }
 
     @SneakyThrows
@@ -45,14 +56,14 @@ public class MainApplication {
         Pattern pattern = Pattern.compile("\\[(\\d+\\.\\d+\\.\\d+\\.\\d+):(\\d+),");
         Matcher matcher = pattern.matcher(bestIpPort);
         matcher.find();
-        return new BestIpPort(matcher.group(1),Integer.valueOf(matcher.group(2)));
+        return new BestIpPort(matcher.group(1), Integer.valueOf(matcher.group(2)));
     }
 
-    public static String setIpAndPortToJson(BestIpPort ipPort){
+    public static String setIpAndPortToJson(BestIpPort ipPort) {
 
         String firstJson = """
                   {
-                  "outbounds":\s
+                  "outbounds":
                   [
                     {
                       "type": "wireguard",
@@ -103,5 +114,33 @@ public class MainApplication {
         String modifiedJsonString = json.toString();
         return modifiedJsonString;
     }
+
+    @SneakyThrows
+    public static void extractAndPrintOutput() {
+        ProcessBuilder processBuilder = new ProcessBuilder("bash", "-c", "curl -sL \"https://api.zeroteam.top/warp?format=sing-box\" | grep -Eo --color=never '\"2606:4700:[0-9a-f:]+/128\"|\"private_key\":\"[0-9a-zA-Z\\/+=]+=\"|\"reserved\":\\[[0-9]+(,[0-9]+){2}\\]'");
+        Process process = processBuilder.start();
+
+        BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+        String line;
+        while ((line = reader.readLine()) != null) {
+            System.out.println(line);
+        }
+
+    }
+
+
+    @SneakyThrows(value = {IOException.class, InterruptedException.class})
+    private static String getJsonResponse() {
+
+        String url = "https://api.zeroteam.top/warp?format=sing-box";
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .header("accept", "application/vnd.api+json")
+                .method("GET", HttpRequest.BodyPublishers.noBody())
+                .build();
+        return HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString()).body();
+    }
+
 
 }
