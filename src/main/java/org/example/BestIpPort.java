@@ -10,6 +10,6 @@ import lombok.NoArgsConstructor;
 public class BestIpPort {
 
     private String ip;
-    private int port;
+    private Long port;
 
 }
