@@ -18,7 +18,14 @@ public class MainApplication {
 
     public static void main(String[] args) {
 
-        System.out.println(finalConfigString(outbounds()));
+        //get warp on warp config string
+        String finalConfigString = finalConfigString(outbounds());
+
+        //print warp on warp config string on console
+        System.out.println(finalConfigString);
+
+        //write warp on warp config string on text file
+        makeTextConfigFile(finalConfigString);
 
     }
 
@@ -148,6 +155,13 @@ public class MainApplication {
         String json = objectMapper.writeValueAsString(outbounds);
         String finalJson = "{\"outbounds\":" + json + "}";
         return finalJson;
+    }
+
+    @SneakyThrows
+    public static void makeTextConfigFile(String finalConfigString){
+        BufferedWriter writer = new BufferedWriter(new FileWriter("warp_on_warp_config.txt"));
+        writer.write(finalConfigString);
+        writer.close();
     }
 
 }
