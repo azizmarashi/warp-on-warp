@@ -6,6 +6,7 @@ import com.google.gson.Gson;
 import lombok.SneakyThrows;
 import java.io.*;
 import java.net.URI;
+import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -31,7 +32,8 @@ public class MainApplication {
 
     @SneakyThrows
     public static void extractAndCreateCSVFile() {
-        ProcessBuilder processBuilder = new ProcessBuilder("bash", "-c", "curl -fsSL https://raw.githubusercontent.com/Ptechgithub/warp/main/endip/install.sh | bash");
+        downloadAndCreateBashFile();
+        ProcessBuilder processBuilder = new ProcessBuilder("bash", "install.sh");
         Process process = processBuilder.start();
         process.getOutputStream().write("1\n".getBytes());
         process.getOutputStream().flush();
@@ -43,6 +45,16 @@ public class MainApplication {
         BufferedReader reader2 = new BufferedReader(new InputStreamReader(inputStream2));
         while ((reader2.readLine()) != null) {
         }
+    }
+
+    @SneakyThrows
+    public static void downloadAndCreateBashFile(){
+        String url = "https://raw.githubusercontent.com/Ptechgithub/warp/main/endip/install.sh";
+        InputStream in = new URL(url).openStream();
+        OutputStream out = new FileOutputStream("install.sh");
+        in.transferTo(out);
+        in.close();
+        out.close();
     }
 
     @SneakyThrows
